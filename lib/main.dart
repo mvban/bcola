@@ -4,10 +4,10 @@ import 'app/theme/app_theme.dart';
 import 'app/routes/app_router.dart';
 import 'providers/menu_provider.dart';
 import 'providers/wine_provider.dart';
-import 'providers/game_provider.dart';
 import 'providers/event_provider.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const BriscolaApp());
 }
 
@@ -20,7 +20,6 @@ class BriscolaApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => MenuProvider()),
         ChangeNotifierProvider(create: (_) => WineProvider()),
-        ChangeNotifierProvider(create: (_) => GameProvider()),
         ChangeNotifierProvider(create: (_) => EventProvider()),
       ],
       child: MaterialApp.router(
