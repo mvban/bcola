@@ -12,9 +12,9 @@ class MainShell extends StatelessWidget {
     if (location.startsWith('/home')) return 0;
     if (location.startsWith('/menu')) return 1;
     if (location.startsWith('/wine')) return 2;
-    if (location.startsWith('/game')) return 3;
-    if (location.startsWith('/dessert')) return 4;
-    if (location.startsWith('/events')) return 5;
+    if (location.startsWith('/dessert')) return 3;
+    if (location.startsWith('/events')) return 4;
+    if (location.startsWith('/reservations')) return 5;
     return 0;
   }
 
@@ -41,12 +41,54 @@ class MainShell extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _NavItem(icon: Icons.home_outlined, activeIcon: Icons.home, label: 'Home', index: 0, currentIndex: index, onTap: () => context.go('/home')),
-                _NavItem(icon: Icons.restaurant_menu_outlined, activeIcon: Icons.restaurant_menu, label: 'Menu', index: 1, currentIndex: index, onTap: () => context.go('/menu')),
-                _NavItem(icon: Icons.wine_bar_outlined, activeIcon: Icons.wine_bar, label: 'Wines', index: 2, currentIndex: index, onTap: () => context.go('/wine')),
-                _NavItem(icon: Icons.style_outlined, activeIcon: Icons.style, label: 'Game', index: 3, currentIndex: index, onTap: () => context.go('/game')),
-                _NavItem(icon: Icons.cake_outlined, activeIcon: Icons.cake, label: 'Dolci', index: 4, currentIndex: index, onTap: () => context.go('/dessert')),
-                _NavItem(icon: Icons.event_outlined, activeIcon: Icons.event, label: 'Events', index: 5, currentIndex: index, onTap: () => context.go('/events')),
+                _NavItem(
+                  icon: Icons.home_outlined,
+                  activeIcon: Icons.home,
+                  label: 'Home',
+                  index: 0,
+                  currentIndex: index,
+                  onTap: () => context.go('/home'),
+                ),
+                _NavItem(
+                  icon: Icons.restaurant_menu_outlined,
+                  activeIcon: Icons.restaurant_menu,
+                  label: 'Menu',
+                  index: 1,
+                  currentIndex: index,
+                  onTap: () => context.go('/menu'),
+                ),
+                _NavItem(
+                  icon: Icons.wine_bar_outlined,
+                  activeIcon: Icons.wine_bar,
+                  label: 'Wines',
+                  index: 2,
+                  currentIndex: index,
+                  onTap: () => context.go('/wine'),
+                ),
+                _NavItem(
+                  icon: Icons.cake_outlined,
+                  activeIcon: Icons.cake,
+                  label: 'Dolci',
+                  index: 3,
+                  currentIndex: index,
+                  onTap: () => context.go('/dessert'),
+                ),
+                _NavItem(
+                  icon: Icons.event_outlined,
+                  activeIcon: Icons.event,
+                  label: 'Events',
+                  index: 4,
+                  currentIndex: index,
+                  onTap: () => context.go('/events'),
+                ),
+                _NavItem(
+                  icon: Icons.table_restaurant_outlined,
+                  activeIcon: Icons.table_restaurant,
+                  label: 'Reserve',
+                  index: 5,
+                  currentIndex: index,
+                  onTap: () => context.go('/reservations'),
+                ),
               ],
             ),
           ),

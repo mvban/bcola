@@ -1,17 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:go_router/go_router.dart';
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_text_styles.dart';
 import '../../app/constants/app_strings.dart';
+import '../../services/url_launcher_service.dart';
 
 class ReservationScreen extends StatelessWidget {
   const ReservationScreen({super.key});
-
-  Future<void> _launch(String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.externalApplication);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +17,13 @@ class ReservationScreen extends StatelessWidget {
         slivers: [
           SliverAppBar(
             pinned: true,
+            automaticallyImplyLeading: false,
+            leading: context.canPop()
+                ? IconButton(
+                    icon: const Icon(Icons.arrow_back, color: AppColors.warmCream),
+                    onPressed: () => context.pop(),
+                  )
+                : null,
             title: Text('Prenota un Tavolo', style: AppTextStyles.displaySmallOnDark),
             backgroundColor: AppColors.trattoriaRed,
           ),
@@ -55,7 +58,7 @@ class ReservationScreen extends StatelessWidget {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton.icon(
-                            onPressed: () => _launch(AppStrings.resyUrl),
+                            onPressed: () => UrlLauncherService.openResy(context),
                             icon: const Icon(Icons.calendar_today),
                             label: const Text('Reserve on Resy'),
                             style: ElevatedButton.styleFrom(
@@ -74,27 +77,44 @@ class ReservationScreen extends StatelessWidget {
 
                   Text('Hours', style: AppTextStyles.headlineLarge),
                   const SizedBox(height: 12),
-                  _HourRow('Mon – Thu', AppStrings.hoursMonThu),
-                  _HourRow('Friday', AppStrings.hoursFri),
-                  _HourRow('Saturday', AppStrings.hoursSat),
-                  _HourRow('Sunday', AppStrings.hoursSun),
+                  const _HourRow('Mon – Thu', AppStrings.hoursMonThu),
+                  const _HourRow('Friday', AppStrings.hoursFri),
+                  const _HourRow('Saturday', AppStrings.hoursSat),
+                  const _HourRow('Sunday', AppStrings.hoursSun),
 
                   const SizedBox(height: 24),
 
                   Text('Getting Here', style: AppTextStyles.headlineLarge),
                   const SizedBox(height: 12),
-                  _LocationCard(onLaunch: _launch),
+                  _LocationCard(
+                    onTap: () => UrlLauncherService.openDirections(context, AppStrings.restaurantAddress),
+                  ),
 
                   const SizedBox(height: 24),
 
                   Text('Order for Delivery', style: AppTextStyles.headlineLarge),
                   const SizedBox(height: 12),
 
-                  _DeliveryRow('Toast (Pickup & Delivery)', Icons.storefront, AppColors.trattoriaRed, AppStrings.toastUrl, _launch),
+                  _DeliveryRow(
+                    'Toast (Pickup & Delivery)',
+                    Icons.storefront,
+                    AppColors.trattoriaRed,
+                    () => UrlLauncherService.openToast(context),
+                  ),
                   const SizedBox(height: 8),
-                  _DeliveryRow('DoorDash', Icons.delivery_dining, Colors.red.shade700, AppStrings.doorDashUrl, _launch),
+                  _DeliveryRow(
+                    'DoorDash',
+                    Icons.delivery_dining,
+                    Colors.red.shade700,
+                    () => UrlLauncherService.openUrl(context, AppStrings.doorDashUrl),
+                  ),
                   const SizedBox(height: 8),
-                  _DeliveryRow('Uber Eats', Icons.electric_scooter, Colors.green.shade700, AppStrings.uberEatsUrl, _launch),
+                  _DeliveryRow(
+                    'Uber Eats',
+                    Icons.electric_scooter,
+                    Colors.green.shade700,
+                    () => UrlLauncherService.openUrl(context, AppStrings.uberEatsUrl),
+                  ),
                 ],
               ),
             ),
@@ -125,13 +145,13 @@ class _HourRow extends StatelessWidget {
 }
 
 class _LocationCard extends StatelessWidget {
-  final Future<void> Function(String) onLaunch;
-  const _LocationCard({required this.onLaunch});
+  final VoidCallback onTap;
+  const _LocationCard({required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => onLaunch(AppStrings.mapsUrl),
+      onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -142,7 +162,8 @@ class _LocationCard extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 44, height: 44,
+              width: 44,
+              height: 44,
               decoration: BoxDecoration(
                 color: AppColors.trattoriaRed.withOpacity(0.1),
                 shape: BoxShape.circle,
@@ -171,15 +192,14 @@ class _DeliveryRow extends StatelessWidget {
   final String label;
   final IconData icon;
   final Color color;
-  final String url;
-  final Future<void> Function(String) onLaunch;
+  final VoidCallback onTap;
 
-  const _DeliveryRow(this.label, this.icon, this.color, this.url, this.onLaunch);
+  const _DeliveryRow(this.label, this.icon, this.color, this.onTap);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => onLaunch(url),
+      onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(

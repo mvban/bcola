@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_text_styles.dart';
 import '../../app/constants/app_strings.dart';
 import '../../providers/event_provider.dart';
 import '../../models/event.dart';
+import '../../services/url_launcher_service.dart';
 
 class EventsScreen extends StatelessWidget {
   const EventsScreen({super.key});
@@ -20,6 +20,13 @@ class EventsScreen extends StatelessWidget {
         slivers: [
           SliverAppBar(
             pinned: true,
+            automaticallyImplyLeading: false,
+            leading: context.canPop()
+                ? IconButton(
+                    icon: const Icon(Icons.arrow_back, color: AppColors.warmCream),
+                    onPressed: () => context.pop(),
+                  )
+                : null,
             title: Text('Eventi & Catering', style: AppTextStyles.displaySmallOnDark),
             backgroundColor: AppColors.trattoriaRed,
           ),
@@ -78,10 +85,7 @@ class _ReservationBanner extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             ElevatedButton.icon(
-              onPressed: () async {
-                final uri = Uri.parse(AppStrings.resyUrl);
-                if (await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.externalApplication);
-              },
+              onPressed: () => UrlLauncherService.openResy(context),
               icon: const Icon(Icons.calendar_today, size: 16),
               label: const Text('Book on Resy'),
               style: ElevatedButton.styleFrom(
@@ -125,7 +129,6 @@ class _EventCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header with gradient
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -157,7 +160,6 @@ class _EventCard extends StatelessWidget {
                 ],
               ),
             ),
-            // Description
             Padding(
               padding: const EdgeInsets.all(16),
               child: Text(event.description, style: AppTextStyles.bodySmall, maxLines: 2, overflow: TextOverflow.ellipsis),
@@ -197,10 +199,7 @@ class _ContactCTA extends StatelessWidget {
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () async {
-                      final uri = Uri.parse(AppStrings.phoneTel);
-                      if (await canLaunchUrl(uri)) await launchUrl(uri);
-                    },
+                    onPressed: () => UrlLauncherService.makeCall(context, AppStrings.restaurantPhone),
                     icon: const Icon(Icons.phone, size: 16),
                     label: const Text('Call'),
                     style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12)),
@@ -209,10 +208,7 @@ class _ContactCTA extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () async {
-                      final uri = Uri.parse(AppStrings.emailMailto);
-                      if (await canLaunchUrl(uri)) await launchUrl(uri);
-                    },
+                    onPressed: () => UrlLauncherService.sendEmail(context, AppStrings.restaurantEmail, subject: 'Event Inquiry'),
                     icon: const Icon(Icons.email, size: 16),
                     label: const Text('Email'),
                     style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12)),

@@ -18,6 +18,13 @@ class MenuScreen extends StatelessWidget {
         slivers: [
           SliverAppBar(
             pinned: true,
+            automaticallyImplyLeading: false,
+            leading: context.canPop()
+                ? IconButton(
+                    icon: const Icon(Icons.arrow_back, color: AppColors.warmCream),
+                    onPressed: () => context.pop(),
+                  )
+                : null,
             title: Text('Il Menu', style: AppTextStyles.displaySmallOnDark),
             backgroundColor: AppColors.trattoriaRed,
             bottom: PreferredSize(
@@ -152,7 +159,6 @@ class _DishCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Emoji thumbnail
             Container(
               width: 90,
               decoration: BoxDecoration(
@@ -181,7 +187,6 @@ class _DishCard extends StatelessWidget {
                 ],
               ),
             ),
-            // Content
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(14),

@@ -1,18 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_text_styles.dart';
 import '../../app/constants/app_strings.dart';
+import '../../services/url_launcher_service.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  Future<void> _launch(String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.externalApplication);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,11 +15,11 @@ class HomeScreen extends StatelessWidget {
       backgroundColor: AppColors.warmCream,
       body: CustomScrollView(
         slivers: [
-          _HeroSliver(),
-          SliverToBoxAdapter(child: _QuickActions(onLaunch: _launch, context: context)),
+          const _HeroSliver(),
+          SliverToBoxAdapter(child: _QuickActions(context: context)),
           SliverToBoxAdapter(child: _AboutSection()),
           SliverToBoxAdapter(child: _HoursSection()),
-          SliverToBoxAdapter(child: _ContactSection(onLaunch: _launch)),
+          SliverToBoxAdapter(child: _ContactSection(context: context)),
           const SliverToBoxAdapter(child: SizedBox(height: 24)),
         ],
       ),
@@ -33,12 +28,21 @@ class HomeScreen extends StatelessWidget {
 }
 
 class _HeroSliver extends StatelessWidget {
+  const _HeroSliver();
+
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
       expandedHeight: 340,
       pinned: true,
       backgroundColor: AppColors.trattoriaRed,
+      automaticallyImplyLeading: false,
+      leading: context.canPop()
+          ? IconButton(
+              icon: const Icon(Icons.arrow_back, color: AppColors.warmCream),
+              onPressed: () => context.pop(),
+            )
+          : null,
       flexibleSpace: FlexibleSpaceBar(
         background: Stack(
           fit: StackFit.expand,
@@ -76,7 +80,7 @@ class _HeroSliver extends StatelessWidget {
                   Text('Modern Italian · Crown Heights, Brooklyn', style: AppTextStyles.tagline)
                       .animate().fadeIn(delay: 400.ms),
                   const SizedBox(height: 20),
-                  _OpenStatusChip(),
+                  const _OpenStatusChip(),
                 ],
               ),
             ),
@@ -93,6 +97,8 @@ class _HeroSliver extends StatelessWidget {
 }
 
 class _OpenStatusChip extends StatelessWidget {
+  const _OpenStatusChip();
+
   bool _isOpenNow() {
     final now = DateTime.now();
     final weekday = now.weekday; // 1=Mon, 7=Sun
@@ -151,7 +157,6 @@ class _PatternPainter extends CustomPainter {
       ..color = Colors.white.withOpacity(0.03)
       ..style = PaintingStyle.fill;
 
-    // Draw subtle diamond pattern
     for (double x = 0; x < size.width + 60; x += 60) {
       for (double y = 0; y < size.height + 60; y += 60) {
         final path = Path()
@@ -170,17 +175,16 @@ class _PatternPainter extends CustomPainter {
 }
 
 class _QuickActions extends StatelessWidget {
-  final Future<void> Function(String) onLaunch;
   final BuildContext context;
-  const _QuickActions({required this.onLaunch, required this.context});
+  const _QuickActions({required this.context});
 
   @override
   Widget build(BuildContext context) {
     final actions = [
-      _Action('Reserve\nTable', Icons.table_restaurant, AppColors.trattoriaRed, () => onLaunch(AppStrings.resyUrl)),
-      _Action('Order\nOnline', Icons.delivery_dining, AppColors.goldenYellowDark, () => onLaunch(AppStrings.toastUrl)),
-      _Action('Get\nDirections', Icons.map_outlined, AppColors.warmWood, () => onLaunch(AppStrings.mapsUrl)),
-      _Action('Dessert\nCart', Icons.cake_outlined, Color(0xFF6A1B9A), () => GoRouter.of(context).go('/dessert')),
+      _Action('Reserve\nTable', Icons.table_restaurant, AppColors.trattoriaRed, () => UrlLauncherService.openResy(context)),
+      _Action('Order\nOnline', Icons.delivery_dining, AppColors.goldenYellowDark, () => UrlLauncherService.openToast(context)),
+      _Action('Get\nDirections', Icons.map_outlined, AppColors.warmWood, () => UrlLauncherService.openDirections(context, AppStrings.restaurantAddress)),
+      _Action('Dessert\nCart', Icons.cake_outlined, const Color(0xFF6A1B9A), () => GoRouter.of(context).go('/dessert')),
     ];
 
     return Padding(
@@ -337,8 +341,8 @@ class _HoursSection extends StatelessWidget {
 }
 
 class _ContactSection extends StatelessWidget {
-  final Future<void> Function(String) onLaunch;
-  const _ContactSection({required this.onLaunch});
+  final BuildContext context;
+  const _ContactSection({required this.context});
 
   @override
   Widget build(BuildContext context) {
@@ -352,7 +356,7 @@ class _ContactSection extends StatelessWidget {
               label: 'Call Us',
               subtitle: AppStrings.restaurantPhone,
               color: AppColors.trattoriaRed,
-              onTap: () => onLaunch(AppStrings.phoneTel),
+              onTap: () => UrlLauncherService.makeCall(context, AppStrings.restaurantPhone),
             ),
           ),
           const SizedBox(width: 12),
@@ -362,7 +366,7 @@ class _ContactSection extends StatelessWidget {
               label: 'Email Us',
               subtitle: 'briscolabrooklyn\n@gmail.com',
               color: AppColors.goldenYellowDark,
-              onTap: () => onLaunch(AppStrings.emailMailto),
+              onTap: () => UrlLauncherService.sendEmail(context, AppStrings.restaurantEmail),
             ),
           ),
         ],

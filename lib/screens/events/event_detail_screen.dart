@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_text_styles.dart';
 import '../../app/constants/app_strings.dart';
 import '../../providers/event_provider.dart';
 import '../../models/event.dart';
+import '../../services/url_launcher_service.dart';
 
 class EventDetailScreen extends StatelessWidget {
   final String eventId;
@@ -31,7 +31,7 @@ class EventDetailScreen extends StatelessWidget {
             pinned: true,
             backgroundColor: color,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () => Navigator.of(context).pop(),
             ),
             flexibleSpace: FlexibleSpaceBar(
@@ -108,14 +108,10 @@ class EventDetailScreen extends StatelessWidget {
 
                   const SizedBox(height: 32),
 
-                  // CTA buttons
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: () async {
-                        final uri = Uri.parse(AppStrings.resyUrl);
-                        if (await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.externalApplication);
-                      },
+                      onPressed: () => UrlLauncherService.openResy(context),
                       icon: const Icon(Icons.calendar_today, size: 18),
                       label: const Text('Book via Resy'),
                       style: ElevatedButton.styleFrom(
@@ -129,10 +125,7 @@ class EventDetailScreen extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton.icon(
-                      onPressed: () async {
-                        final uri = Uri.parse(AppStrings.emailMailto);
-                        if (await canLaunchUrl(uri)) await launchUrl(uri);
-                      },
+                      onPressed: () => UrlLauncherService.sendEmail(context, AppStrings.restaurantEmail, subject: 'Event Inquiry: ${event.title}'),
                       icon: const Icon(Icons.email_outlined, size: 18),
                       label: const Text('Send Inquiry'),
                       style: OutlinedButton.styleFrom(

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:go_router/go_router.dart';
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_text_styles.dart';
-import '../../app/constants/app_strings.dart';
 import '../../providers/event_provider.dart';
 import '../../models/event.dart';
+import '../../services/url_launcher_service.dart';
 
 class DessertCartScreen extends StatelessWidget {
   const DessertCartScreen({super.key});
@@ -19,6 +19,13 @@ class DessertCartScreen extends StatelessWidget {
         slivers: [
           SliverAppBar(
             pinned: true,
+            automaticallyImplyLeading: false,
+            leading: context.canPop()
+                ? IconButton(
+                    icon: const Icon(Icons.arrow_back, color: AppColors.warmCream),
+                    onPressed: () => context.pop(),
+                  )
+                : null,
             title: Text('Il Carrello dei Dolci', style: AppTextStyles.displaySmallOnDark),
             backgroundColor: AppColors.trattoriaRed,
             actions: [
@@ -122,15 +129,15 @@ class _CartHeroBanner extends StatelessWidget {
         ),
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Row(
+      child: const Row(
         children: [
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('🍮', style: TextStyle(fontSize: 32)),
                 SizedBox(height: 8),
-                Text('The Dessert Cart', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white)),
+                Text('The Dessert Cart (Dolci)', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white)),
                 SizedBox(height: 4),
                 Text('Rolling tableside since opening night. Add items to pre-order with Toast.', style: TextStyle(fontSize: 12, color: Colors.white70, height: 1.5)),
               ],
@@ -164,7 +171,6 @@ class _DessertCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Emoji area
           Expanded(
             child: Container(
               decoration: const BoxDecoration(
@@ -176,7 +182,6 @@ class _DessertCard extends StatelessWidget {
               ),
             ),
           ),
-          // Content
           Padding(
             padding: const EdgeInsets.all(10),
             child: Column(
@@ -189,7 +194,6 @@ class _DessertCard extends StatelessWidget {
                   children: [
                     Text('\$${item.price.toInt()}', style: AppTextStyles.priceSmall),
                     const Spacer(),
-                    // Quantity control
                     if (item.quantity == 0)
                       GestureDetector(
                         onTap: onIncrement,
@@ -297,9 +301,9 @@ class _CartSheet extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: () async {
-                  final uri = Uri.parse(AppStrings.toastUrl);
-                  if (await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.externalApplication);
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  UrlLauncherService.openToast(context);
                 },
                 icon: const Icon(Icons.open_in_new),
                 label: const Text('Order via Toast'),

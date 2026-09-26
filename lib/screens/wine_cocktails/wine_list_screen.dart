@@ -37,6 +37,13 @@ class _WineListScreenState extends State<WineListScreen> with SingleTickerProvid
         headerSliverBuilder: (context, _) => [
           SliverAppBar(
             pinned: true,
+            automaticallyImplyLeading: false,
+            leading: context.canPop()
+                ? IconButton(
+                    icon: const Icon(Icons.arrow_back, color: AppColors.warmCream),
+                    onPressed: () => context.pop(),
+                  )
+                : null,
             title: Text('Vini & Cocktails', style: AppTextStyles.displaySmallOnDark),
             backgroundColor: AppColors.trattoriaRed,
             bottom: TabBar(
@@ -167,7 +174,6 @@ class _WineCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Wine type indicator
             Container(
               width: 48,
               height: 48,

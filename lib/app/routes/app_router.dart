@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../screens/splash/splash_screen.dart';
 import '../../screens/home/home_screen.dart';
 import '../../screens/menu/menu_screen.dart';
 import '../../screens/menu/dish_detail_screen.dart';
 import '../../screens/wine_cocktails/wine_list_screen.dart';
 import '../../screens/wine_cocktails/wine_detail_screen.dart';
-import '../../screens/briscola_game/game_lobby_screen.dart';
-import '../../screens/briscola_game/game_board_screen.dart';
-import '../../screens/briscola_game/game_tutorial_screen.dart';
 import '../../screens/dessert_cart/dessert_cart_screen.dart';
 import '../../screens/events/events_screen.dart';
 import '../../screens/events/event_detail_screen.dart';
@@ -15,8 +13,12 @@ import '../../screens/reservations/reservation_screen.dart';
 import '../../widgets/main_shell.dart';
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: '/home',
+  initialLocation: '/splash',
   routes: [
+    GoRoute(
+      path: '/splash',
+      builder: (context, state) => const SplashScreen(),
+    ),
     ShellRoute(
       builder: (context, state, child) => MainShell(child: child),
       routes: [
@@ -47,20 +49,6 @@ final GoRouter appRouter = GoRouter(
                 final id = state.pathParameters['id']!;
                 return WineDetailScreen(wineId: id);
               },
-            ),
-          ],
-        ),
-        GoRoute(
-          path: '/game',
-          builder: (context, state) => const GameLobbyScreen(),
-          routes: [
-            GoRoute(
-              path: 'board',
-              builder: (context, state) => const GameBoardScreen(),
-            ),
-            GoRoute(
-              path: 'tutorial',
-              builder: (context, state) => const GameTutorialScreen(),
             ),
           ],
         ),

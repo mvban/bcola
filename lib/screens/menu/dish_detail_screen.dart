@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_text_styles.dart';
-import '../../app/constants/app_strings.dart';
 import '../../providers/menu_provider.dart';
 import '../../models/dish.dart';
+import '../../services/url_launcher_service.dart';
 
 class DishDetailScreen extends StatelessWidget {
   final String dishId;
@@ -29,7 +28,7 @@ class DishDetailScreen extends StatelessWidget {
             pinned: true,
             backgroundColor: AppColors.trattoriaRed,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios, color: AppColors.warmCream),
+              icon: const Icon(Icons.arrow_back, color: AppColors.warmCream),
               onPressed: () => Navigator.of(context).pop(),
             ),
             flexibleSpace: FlexibleSpaceBar(
@@ -68,7 +67,6 @@ class DishDetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header
                   Text(dish.category.toUpperCase(), style: AppTextStyles.category)
                       .animate().fadeIn(delay: 100.ms),
                   const SizedBox(height: 4),
@@ -79,7 +77,6 @@ class DishDetailScreen extends StatelessWidget {
 
                   const SizedBox(height: 16),
 
-                  // Price + Region row
                   Row(
                     children: [
                       Text('\$${dish.price.toInt()}', style: AppTextStyles.price),
@@ -104,16 +101,14 @@ class DishDetailScreen extends StatelessWidget {
 
                   const Divider(height: 32),
 
-                  // Story
-                  _SectionLabel('The Story'),
+                  const _SectionLabel('The Story'),
                   const SizedBox(height: 8),
                   Text(dish.story, style: AppTextStyles.bodyLarge)
                       .animate().fadeIn(delay: 300.ms),
 
                   const SizedBox(height: 24),
 
-                  // Ingredients
-                  _SectionLabel('Ingredients'),
+                  const _SectionLabel('Ingredients'),
                   const SizedBox(height: 10),
                   Wrap(
                     spacing: 8,
@@ -128,7 +123,6 @@ class DishDetailScreen extends StatelessWidget {
 
                   const SizedBox(height: 24),
 
-                  // Pairing
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -157,14 +151,10 @@ class DishDetailScreen extends StatelessWidget {
 
                   const SizedBox(height: 32),
 
-                  // Order button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: () async {
-                        final uri = Uri.parse(AppStrings.toastUrl);
-                        if (await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.externalApplication);
-                      },
+                      onPressed: () => UrlLauncherService.openToast(context),
                       icon: const Icon(Icons.delivery_dining),
                       label: const Text('Order This Dish'),
                       style: ElevatedButton.styleFrom(
