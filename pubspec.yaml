@@ -56,11 +56,3 @@ flutter:
     - assets/icons/
     - assets/images/
 
-  fonts:
-    - family: Playfair
-      fonts:
-        - asset: assets/fonts/PlayfairDisplay-Regular.ttf
-        - asset: assets/fonts/PlayfairDisplay-Bold.ttf
-          weight: 700
-        - asset: assets/fonts/PlayfairDisplay-Italic.ttf
-          style: italic
