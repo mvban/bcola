@@ -69,12 +69,30 @@ class UrlLauncherService {
     await openUrl(context, googleMapsUrl);
   }
 
-  /// Resy App Launcher with Play Store & Browser Fallback Modal
+  /// Resy App Launcher:
+  /// - If Resy app is INSTALLED -> Opens Resy app directly without any prompt.
+  /// - If Resy app is NOT INSTALLED -> Opens fallback modal (Play Store vs Browser).
   static Future<void> openResy(
     BuildContext context, {
     String webUrl = 'https://resy.com/cities/new-york-ny/venues/briscola-trattoria',
   }) async {
-    // Show option modal to launch via app / Play Store or web browser
+    // 1. Try launching native android app package URI directly
+    final androidPackageUri = Uri.parse('android-app://$resyPackage');
+    if (await canLaunchUrl(androidPackageUri)) {
+      final launched = await launchUrl(androidPackageUri, mode: LaunchMode.externalNonBrowserApplication);
+      if (launched) return;
+    }
+
+    // 2. Try custom app scheme URI
+    final schemeUri = Uri.parse('resy://');
+    if (await canLaunchUrl(schemeUri)) {
+      final launched = await launchUrl(schemeUri, mode: LaunchMode.externalNonBrowserApplication);
+      if (launched) return;
+    }
+
+    if (!context.mounted) return;
+
+    // 3. App is NOT installed -> Show fallback modal prompt
     await _showAppLaunchModal(
       context: context,
       appName: 'Resy',
@@ -82,16 +100,34 @@ class UrlLauncherService {
       accentColor: AppColors.trattoriaRed,
       playStoreUrl: 'https://play.google.com/store/apps/details?id=$resyPackage',
       webUrl: webUrl,
-      appScheme: 'resy://',
       packageName: resyPackage,
     );
   }
 
-  /// Toast App Launcher with Play Store & Browser Fallback Modal
+  /// Toast App Launcher:
+  /// - If Toast app is INSTALLED -> Opens Toast app directly without any prompt.
+  /// - If Toast app is NOT INSTALLED -> Opens fallback modal (Play Store vs Browser).
   static Future<void> openToast(
     BuildContext context, {
     String webUrl = 'https://order.toasttab.com/online/briscola-trattoria-798a-franklin-avenue',
   }) async {
+    // 1. Try launching native android app package URI directly
+    final androidPackageUri = Uri.parse('android-app://$toastPackage');
+    if (await canLaunchUrl(androidPackageUri)) {
+      final launched = await launchUrl(androidPackageUri, mode: LaunchMode.externalNonBrowserApplication);
+      if (launched) return;
+    }
+
+    // 2. Try custom app scheme URI
+    final schemeUri = Uri.parse('toasttab://');
+    if (await canLaunchUrl(schemeUri)) {
+      final launched = await launchUrl(schemeUri, mode: LaunchMode.externalNonBrowserApplication);
+      if (launched) return;
+    }
+
+    if (!context.mounted) return;
+
+    // 3. App is NOT installed -> Show fallback modal prompt
     await _showAppLaunchModal(
       context: context,
       appName: 'Toast Takeout',
@@ -99,7 +135,6 @@ class UrlLauncherService {
       accentColor: AppColors.goldenYellowDark,
       playStoreUrl: 'https://play.google.com/store/apps/details?id=$toastPackage',
       webUrl: webUrl,
-      appScheme: 'toasttab://',
       packageName: toastPackage,
     );
   }
@@ -111,19 +146,8 @@ class UrlLauncherService {
     required Color accentColor,
     required String playStoreUrl,
     required String webUrl,
-    required String appScheme,
     required String packageName,
   }) async {
-    // Try direct native app launch first if possible
-    final appUri = Uri.parse(appScheme);
-    if (await canLaunchUrl(appUri)) {
-      final launched = await launchUrl(appUri, mode: LaunchMode.externalNonBrowserApplication);
-      if (launched) return;
-    }
-
-    if (!context.mounted) return;
-
-    // Show modal with clear options: Open App / Play Store OR Open Web
     await showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -165,12 +189,12 @@ class UrlLauncherService {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Open $appName',
+                          '$appName App Not Installed',
                           style: AppTextStyles.headlineMedium,
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          'Choose how you would like to proceed:',
+                          'Choose how you would like to open this link:',
                           style: AppTextStyles.bodySmall,
                         ),
                       ],
@@ -179,7 +203,7 @@ class UrlLauncherService {
                 ],
               ),
               const SizedBox(height: 24),
-              // Option 1: Native App / Play Store
+              // Option 1: Install from Google Play Store
               ElevatedButton.icon(
                 onPressed: () async {
                   Navigator.of(ctx).pop();
@@ -190,8 +214,8 @@ class UrlLauncherService {
                     await openUrl(context, playStoreUrl);
                   }
                 },
-                icon: const Icon(Icons.android),
-                label: Text('Open or Install $appName App'),
+                icon: const Icon(Icons.get_app),
+                label: Text('Get $appName on Google Play Store'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: accentColor,
                   foregroundColor: Colors.white,
